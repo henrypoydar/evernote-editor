@@ -1,6 +1,7 @@
 # EvernoteEditor
 
 Simple gem that provides command line creation and editing of Evernote notes.
+Uses your favorite editor and Markdown formatting.
 
 ## Installation
 
