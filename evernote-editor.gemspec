@@ -4,6 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'evernote_editor/version'
 
 Gem::Specification.new do |gem|
+
   gem.name          = "evernote-editor"
   gem.version       = EvernoteEditor::VERSION
   gem.authors       = ["hpoydar"]
@@ -18,7 +19,9 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
 
   gem.add_development_dependency "rspec", "~> 2.12.0"
-  gem.add_development_dependency "evernote-thrift", "~> 1.23.1"
+  gem.add_development_dependency "fakefs", "~> 0.4.2"
+
+  gem.add_runtime_dependency "evernote_oauth", "~> 0.1.6"
 
 end
 

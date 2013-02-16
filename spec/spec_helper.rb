@@ -1,8 +1,9 @@
 require 'rubygems'
 require 'bundler/setup'
+require 'fakefs/spec_helpers'
 
 require 'evernote_editor'
 
 RSpec.configure do |config|
-  # some (optional) config here
+  config.include FakeFS::SpecHelpers
 end
