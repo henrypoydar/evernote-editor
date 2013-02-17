@@ -28,7 +28,4 @@ OptionParser.new do |opts|
 
 end.parse!
 
-
-
-p options
-p ARGV
+enved = EvernoteEditor::Editor.new(ARGV, options)  
