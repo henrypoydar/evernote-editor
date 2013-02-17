@@ -1,0 +1,34 @@
+#!/usr/bin/env ruby
+
+lib = File.expand_path(File.dirname(__FILE__) + '/../lib')
+$LOAD_PATH.unshift(lib) if File.directory?(lib) && !$LOAD_PATH.include?(lib)
+
+require 'optparse'
+require 'evernote_editor'
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: evned [options] title tag1,tag2"
+
+  options[:edit] = false
+  options[:sandbox] = false
+
+  opts.on( '-s', '--sandbox', 'Use the Evernote sandbox server' ) do
+    options[:sandbox] = true
+  end
+
+  opts.on( '-e', '--edit', 'Search for and edit an existing note' ) do
+    options[:edit] = true
+  end
+
+  opts.on( '-h', '--help', 'Display this screen' ) do
+    puts opts
+    exit
+  end
+
+end.parse!
+
+
+
+p options
+p ARGV

@@ -5,13 +5,29 @@ module EvernoteEditor
   
   class Editor
 
-    CONFIGURATION_FILE = File.expand_path("~/.evn")
+    CONFIGURATION_FILE = File.expand_path("~/.evned")
 
-    def initialize
+    def initialize(directive, *args)
       configure
+      @title = args[0] || "Untitled note - #{Time.now}"
+      case directive
+      when 'create'
+        create_file 
+        @tags = (args[1] || []).split(',')
+      when 'edit'
+        edit_file
+      end
     end
 
   private
+
+    def create_file
+
+    end
+
+    def edit_file
+
+    end
 
     def configure
       FileUtils.touch(CONFIGURATION_FILE) unless File.exist?(CONFIGURATION_FILE)
