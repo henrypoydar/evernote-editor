@@ -2,18 +2,30 @@ require 'spec_helper'
 
 describe EvernoteEditor::Editor do
 
+  before do
+    # Make sure the ~ path exists in our fakefs fake file system 
+    FileUtils.mkpath(File.expand_path("~"))
+  end
+
   context "#new" do
 
     it "creates a dotfile if one does not exist" do
-      # Make sure the ~ path exists in our fakefs fake file system 
-      FileUtils.mkpath(File.expand_path("~"))
+      STDIN.stub!(:gets).and_return("entry\n")
       e = EvernoteEditor::Editor.new
       File.exist?(File.expand_path("~/.evn")).should eq true
     end
 
-    it "prompts for a developer key if it does not exist"
+    it "prompts for and stores a developer token" do
+      STDIN.stub!(:gets).and_return("entry\n")
+      e = EvernoteEditor::Editor.new
+      YAML::load(File.open(File.expand_path("~/.evn")))[:token].should eq "entry"
+    end
 
-    it "stores a developer key"
+    it "prompts for and stores an editor command" do
+      STDIN.stub!(:gets).and_return("entry\n")
+      e = EvernoteEditor::Editor.new
+      YAML::load(File.open(File.expand_path("~/.evn")))[:editor].should eq "entry"
+    end
 
   end
 
