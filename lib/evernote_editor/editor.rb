@@ -17,12 +17,12 @@ module EvernoteEditor
       @sandbox = opts[:sandbox]
       @mkdout  = Redcarpet::Markdown.new(Redcarpet::Render::XHTML,
         autolink: true, space_after_headers: true, no_intra_emphasis: true)
-      opts[:edit] ? edit_file : create_file
+      opts[:edit] ? edit_note : create_note
     end
 
   private
     
-    def create_file
+    def create_note
       markdown = invoke_editor
       begin
         evn_client = EvernoteOAuth::Client.new(token: @configuration[:token], sandbox: @sandbox)
@@ -32,8 +32,10 @@ module EvernoteEditor
         note.content = note_markup(markdown)
         created_note = note_store.createNote(@configuration[:token], note)
         say "Successfully created a new note (GUID: #{created_note.guid})"
-      rescue Evernote::EDAM::Error::EDAMSystemException => e
-        graceful_failure(markdown, e)
+      rescue Evernote::EDAM::Error::EDAMSystemException,
+        Evernote::EDAM::Error::EDAMUserException,
+        Evernote::EDAM::Error::EDAMNotFoundException => e
+          graceful_failure(markdown, e)
       end
     end
 
@@ -47,8 +49,12 @@ module EvernoteEditor
       say ""
     end
 
+    def edit_note
+      if locate_note
+      end
+    end
 
-    def edit_file
+    def locate_note
 
     end
 

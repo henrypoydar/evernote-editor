@@ -9,10 +9,15 @@ Uses your favorite editor and Markdown formatting.
 
 ## Usage
 
-    evn <create|edit> <title> <tag>
+    evned [options] title tag1,tag2
+      -s, --sandbox      Use the Evernote sandbox server
+      -e, --edit         Search for and edit an existing note by title
+      -h, --help         Display this screen <title> <tag>
 
 ## TODO
 
-* YML file for consumer key and secret with rake tasks
-* Build the thing
+* Editing first by finding
+* Tags on creation?
+* Specs are pretty thin. Stubbing/expecting the thrift stuff is cumbersome.
+* Better exception handling. With specs.
 * Travis-ify

@@ -11,6 +11,11 @@ describe EvernoteEditor::Editor do
     EvernoteEditor::Editor.any_instance.stub(:say)
     EvernoteEditor::Editor.any_instance.stub(:ask).with(/token/).and_return('0123456789')
     EvernoteEditor::Editor.any_instance.stub(:ask).with(/editor/).and_return('vim')
+    # Stub Evernote
+    EvernoteOAuth::Client.stub(:new).and_return(
+      double("EvernoteOAuth::Client",
+        note_store: double("note_store",
+          createNote: double("created_note", guid: "1234567890"))))
   end
 
   context "#new" do
@@ -35,6 +40,11 @@ describe EvernoteEditor::Editor do
   context "#create" do
 
     it "opens a new document in a text editor" do
+      EvernoteEditor::Editor.any_instance.should_receive(:open_editor).once
+      e = EvernoteEditor::Editor.new('title', 'tag1,tag2', {})
+    end
+
+    it "saves the document to Evernote" do
       e = EvernoteEditor::Editor.new('title', 'tag1,tag2', {})
     end
 
