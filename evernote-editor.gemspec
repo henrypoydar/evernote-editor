@@ -23,6 +23,7 @@ Gem::Specification.new do |gem|
 
   gem.add_runtime_dependency "evernote_oauth", "~> 0.1.6"
   gem.add_runtime_dependency "highline", "~> 1.6.15"
+  gem.add_runtime_dependency "redcarpet", "~> 2.2.2"
 
 end
 

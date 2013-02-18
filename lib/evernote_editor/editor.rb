@@ -2,6 +2,7 @@ require 'evernote_oauth'
 require 'fileutils'
 require 'tempfile'
 require "highline/import"
+require "redcarpet"
 
 module EvernoteEditor
   
@@ -11,33 +12,54 @@ module EvernoteEditor
 
     def initialize(*args, opts)
       configure
-      @title   = args[0] || "Untitled note - #{Time.now}"
-      @tags    = (args[1] || '').split(',')
+      @title   = args.flatten[0] || "Untitled note - #{Time.now}"
+      @tags    = (args.flatten[1] || '').split(',')
       @sandbox = opts[:sandbox]
-      #opts[:edit] ? edit_file : create_file
+      @mkdout  = Redcarpet::Markdown.new(Redcarpet::Render::XHTML,
+        autolink: true, space_after_headers: true, no_intra_emphasis: true)
+      opts[:edit] ? edit_file : create_file
     end
 
   private
     
     def create_file
       markdown = invoke_editor
-      evn_client = EvernoteOAuth::Client.new(token: @token, sandbox: @sandbox)
-      note = Evernote::EDAM::Type::Note.new
-      note.content = <<EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE en-note SYSTEM "http://xml.evernote.com/pub/enml2.dtd">
-<en-note>
-<p>Lorem ipsum</p>
-</en-note>
-EOF
-      created_note = evn_client.note_store.createNote(@token, note)
-
-      puts "Successfully created a new note with GUID: #{created_note.guid}"
-      puts markdown
+      begin
+        evn_client = EvernoteOAuth::Client.new(token: @configuration[:token], sandbox: @sandbox)
+        note_store = evn_client.note_store
+        note = Evernote::EDAM::Type::Note.new
+        note.title = @title
+        note.content = note_markup(markdown)
+        created_note = note_store.createNote(@configuration[:token], note)
+        say "Successfully created a new note (GUID: #{created_note.guid})"
+      rescue Evernote::EDAM::Error::EDAMSystemException => e
+        graceful_failure(markdown, e)
+      end
     end
+
+    def graceful_failure(markdown, e)
+      say "Sorry, an error occurred saving the note to Evernote (#{e.message})"
+      say "Here's the markdown you were trying to save:"
+      say ""
+      say "--BEGIN--"
+      say markdown
+      say "--END--"
+      say ""
+    end
+
 
     def edit_file
 
+    end
+
+    def note_markup(markdown)
+      res = <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE en-note SYSTEM "http://xml.evernote.com/pub/enml2.dtd">
+<en-note>
+#{@mkdout.render(markdown)}
+</en-note>
+EOF
     end
 
     def invoke_editor(initial_content = "")
@@ -99,4 +121,3 @@ EOF
   end
 
 end
-
