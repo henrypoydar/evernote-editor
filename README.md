@@ -12,7 +12,7 @@ Uses your favorite editor and Markdown formatting.
     evned [options] title tag1,tag2
       -s, --sandbox      Use the Evernote sandbox server
       -e, --edit         Search for and edit an existing note by title
-      -h, --help         Display this screen <title> <tag>
+      -h, --help         Display this screen
 
 ## TODO
 
