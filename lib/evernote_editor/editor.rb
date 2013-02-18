@@ -5,23 +5,32 @@ require "highline/import"
 require "redcarpet"
 
 module EvernoteEditor
-  
+
   class Editor
 
     CONFIGURATION_FILE = File.expand_path("~/.evned")
+    attr_accessor :configuration
 
     def initialize(*args, opts)
-      configure
       @title   = args.flatten[0] || "Untitled note - #{Time.now}"
       @tags    = (args.flatten[1] || '').split(',')
-      @sandbox = opts[:sandbox]
+      @options = opts
       @mkdout  = Redcarpet::Markdown.new(Redcarpet::Render::XHTML,
         autolink: true, space_after_headers: true, no_intra_emphasis: true)
+    end
+
+    def run
+      configure
       opts[:edit] ? edit_note : create_note
     end
 
-  private
-    
+    def configure
+      FileUtils.touch(CONFIGURATION_FILE) unless File.exist?(CONFIGURATION_FILE)
+      @configuration = YAML::load(File.open(CONFIGURATION_FILE)) || {}
+      store_key unless @configuration[:token]
+      store_editor unless @configuration[:editor]
+    end
+
     def create_note
       markdown = invoke_editor
       begin
@@ -66,6 +75,7 @@ module EvernoteEditor
 #{@mkdout.render(markdown)}
 </en-note>
 EOF
+      res
     end
 
     def invoke_editor(initial_content = "")
@@ -96,12 +106,6 @@ EOF
       end
     end
 
-    def configure
-      FileUtils.touch(CONFIGURATION_FILE) unless File.exist?(CONFIGURATION_FILE)
-      @configuration = YAML::load(File.open(CONFIGURATION_FILE)) || {}
-      store_key unless @configuration[:token]
-      store_editor unless @configuration[:editor]
-    end
 
     def store_key
       say "You will need a developer token to use this editor."
