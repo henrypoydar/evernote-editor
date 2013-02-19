@@ -42,9 +42,9 @@ module EvernoteEditor
         created_note = note_store.createNote(@configuration[:token], note)
         say "Successfully created a new note (GUID: #{created_note.guid})"
       rescue Evernote::EDAM::Error::EDAMSystemException,
-        Evernote::EDAM::Error::EDAMUserException,
-        Evernote::EDAM::Error::EDAMNotFoundException => e
-          graceful_failure(markdown, e)
+             Evernote::EDAM::Error::EDAMUserException,
+             Evernote::EDAM::Error::EDAMNotFoundException => e
+        graceful_failure(markdown, e)
       end
     end
 
@@ -59,11 +59,21 @@ module EvernoteEditor
     end
 
     def edit_note
-      if locate_note
+      if search_notes 
+
       end
     end
 
-    def locate_note
+    def search_notes
+      begin
+        evn_client = EvernoteOAuth::Client.new(token: @configuration[:token], sandbox: @sandbox)
+        note_store = evn_client.note_store
+      rescue Evernote::EDAM::Error::EDAMSystemException,
+             Evernote::EDAM::Error::EDAMUserException,
+             Evernote::EDAM::Error::EDAMNotFoundException => e
+        say "Sorry, an error occurred saving the note to Evernote (#{e.message})"
+        false
+      end
 
     end
 

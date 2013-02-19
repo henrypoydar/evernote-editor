@@ -127,6 +127,21 @@ describe EvernoteEditor::Editor do
 
   end
 
+  describe "#search_notes" do
+
+    it "returns an array of hashes of notes"
+
+    context "when no results are found" do
+      it "returns false"
+    end
+
+    context "when there is an Evernote Cloud API communication error" do
+      it "displays an error message"
+      it "returns false"
+    end
+
+  end
+
   describe "#edit_note" do
 
     it "presents a list of notes that match the title input"
