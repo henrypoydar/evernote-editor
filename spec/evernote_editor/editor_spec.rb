@@ -12,7 +12,7 @@ describe EvernoteEditor::Editor do
 
     let(:enved) { EvernoteEditor::Editor.new('a note', {}) }
 
-    before :each do
+    before do
       # Silence the spec output
       EvernoteEditor::Editor.any_instance.stub(:say)
     end
@@ -49,11 +49,7 @@ describe EvernoteEditor::Editor do
 
     context "when a configuration dot file exists" do
 
-      before :each do
-        File.open(File.expand_path("~/.evned"), 'w') do |f|
-          f.write( { token: '123', editor: 'vim' }.to_yaml )
-        end
-      end
+      before { write_fakefs_config }
 
       it "does not prompt for a developer token" do
         enved.should_not_receive(:ask).with(/token/)
@@ -69,7 +65,7 @@ describe EvernoteEditor::Editor do
 
     context "when a configuration dot file is incomplete/invalid" do
 
-      before :each do
+      before do
         File.open(File.expand_path("~/.evned"), 'w') do |f|
           f.write( { foo: '123', editor: 'vim' }.to_yaml )
         end
@@ -93,13 +89,39 @@ describe EvernoteEditor::Editor do
 
   describe "#create_note" do
 
-    it "opens a new document in a text editor"
+    let(:enved) { EvernoteEditor::Editor.new('a note', {}) }
 
-    it "saves the document to Evernote"
+    before do
+      write_fakefs_config
+      EvernoteEditor::Editor.any_instance.stub(:say)
+    end
+
+    it "opens a new document in a text editor" do
+      enved.should_receive(:open_editor).once
+      EvernoteOAuth::Client.stub(:new).and_return(
+        double("EvernoteOAuth::Client",
+          note_store: double("note_store",
+            createNote: double("created_note", guid: "1234567890"))))
+      enved.run
+    end
+
+    it "saves the document to Evernote" do
+      enved.stub!(:open_editor)
+      EvernoteOAuth::Client.should_receive(:new).and_return(
+        double("EvernoteOAuth::Client",
+          note_store: double("note_store",
+            createNote: double("created_note", guid: "1234567890"))))
+      enved.run
+    end
 
     context "when there is an Evernote Cloud API communication error" do
 
-      it "prints your note to STDOUT so you don't lose it"
+      it "prints your note to STDOUT so you don't lose it" do
+        enved.stub!(:open_editor)
+        EvernoteOAuth::Client.stub(:new).and_raise(Evernote::EDAM::Error::EDAMSystemException)
+        enved.should_receive(:graceful_failure).once
+        enved.run
+      end
 
     end
 
@@ -123,9 +145,17 @@ describe EvernoteEditor::Editor do
 
   describe "#note_markup" do
 
-    it "converts markdown to XHTML"
+    let(:enved) { EvernoteEditor::Editor.new('a note', {}) }
 
-    it "inserts XHTML into the ENML"
+    it "converts markdown to XHTML" do
+      enved.note_markup("This is *bongos*, indeed.").should =~
+        /<p>This is <em>bongos<\/em>, indeed.<\/p>/
+    end
+
+    it "inserts XHTML into the ENML" do
+      enved.note_markup("This is *bongos*, indeed.").should =~
+        /<en-note>\s*<p>This is <em>bongos<\/em>, indeed.<\/p>\s*<\/en-note>/
+    end
 
   end
 

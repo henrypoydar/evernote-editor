@@ -21,7 +21,7 @@ module EvernoteEditor
 
     def run
       configure
-      opts[:edit] ? edit_note : create_note
+      @options[:edit] ? edit_note : create_note
     end
 
     def configure
@@ -91,7 +91,7 @@ EOF
 
     def open_editor(file_path)
       cmd = [@configuration[:editor], blocking_flag, file_path].join(' ')
-      Kernel.system(cmd) or raise SystemCallError, "`#{cmd}` gave exit status: #{$?.exitstatus}"
+      system(cmd) or raise SystemCallError, "`#{cmd}` gave exit status: #{$?.exitstatus}"
     end
 
     # Patterned from Pry
