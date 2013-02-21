@@ -24,6 +24,7 @@ module EvernoteEditor
       @options[:edit] ? edit_note : create_note
     end
 
+
     def configure
       FileUtils.touch(CONFIGURATION_FILE) unless File.exist?(CONFIGURATION_FILE)
       @configuration = YAML::load(File.open(CONFIGURATION_FILE)) || {}
@@ -64,10 +65,13 @@ module EvernoteEditor
       end
     end
 
-    def search_notes
+    def search_notes(term = '')
       begin
         evn_client = EvernoteOAuth::Client.new(token: @configuration[:token], sandbox: @sandbox)
         note_store = evn_client.note_store
+        note_filter = Evernote::EDAM::NoteStore::NoteFilter.new
+        note_filter.words = term
+        results = note_store.findNotes(@configuration[:token], note_filter, 0, 10).notes
       rescue Evernote::EDAM::Error::EDAMSystemException,
              Evernote::EDAM::Error::EDAMUserException,
              Evernote::EDAM::Error::EDAMNotFoundException => e
@@ -78,13 +82,13 @@ module EvernoteEditor
     end
 
     def note_markup(markdown)
-      res = <<EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE en-note SYSTEM "http://xml.evernote.com/pub/enml2.dtd">
-<en-note>
-#{@mkdout.render(markdown)}
-</en-note>
-EOF
+      res = <<-EOS
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE en-note SYSTEM "http://xml.evernote.com/pub/enml2.dtd">
+        <en-note>
+        #{@mkdout.render(markdown)}
+        </en-note>
+      EOS
       res
     end
 

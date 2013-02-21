@@ -128,16 +128,35 @@ describe EvernoteEditor::Editor do
   end
 
   describe "#search_notes" do
+    
+    before { write_fakefs_config }
+    let(:enved) { EvernoteEditor::Editor.new('a note', {}) }
 
-    it "returns an array of hashes of notes"
+    it "returns an array of hashes of notes" do
+
+
+    end
 
     context "when no results are found" do
       it "returns false"
     end
 
     context "when there is an Evernote Cloud API communication error" do
-      it "displays an error message"
-      it "returns false"
+
+      it "displays an error message" do
+        enved.configure
+        EvernoteOAuth::Client.stub(:new).and_raise(Evernote::EDAM::Error::EDAMSystemException)
+        enved.should_receive(:say).with(/sorry/i).once
+        enved.search_notes
+      end
+      
+      it "returns false" do
+        enved.configure
+        EvernoteOAuth::Client.stub(:new).and_raise(Evernote::EDAM::Error::EDAMSystemException)
+        enved.stub(:say)
+        enved.search_notes.should eq false
+      end
+
     end
 
   end
