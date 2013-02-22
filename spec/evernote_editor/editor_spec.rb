@@ -6,6 +6,11 @@ describe EvernoteEditor::Editor do
     # Make sure the necessary paths exist in our fakefs fake file system 
     FileUtils.mkpath(File.expand_path("~"))
     FileUtils.mkpath(File.expand_path("/tmp"))
+    @mock_note_store = double("note_store",
+      createNote: double("note", guid: "123"),
+      findNotes:  double("notes", notes: [
+        double("note", title: 'alpha', guid: "456"),
+        double("note", title: 'bravo', guid: "789")]))
   end
 
   describe "#configure" do
@@ -99,19 +104,17 @@ describe EvernoteEditor::Editor do
     it "opens a new document in a text editor" do
       enved.should_receive(:open_editor).once
       EvernoteOAuth::Client.stub(:new).and_return(
-        double("EvernoteOAuth::Client",
-          note_store: double("note_store",
-            createNote: double("created_note", guid: "1234567890"))))
-      enved.run
+        double("EvernoteOAuth::Client", note_store: @mock_note_store))
+      enved.configure
+      enved.create_note
     end
 
     it "saves the document to Evernote" do
       enved.stub!(:open_editor)
       EvernoteOAuth::Client.should_receive(:new).and_return(
-        double("EvernoteOAuth::Client",
-          note_store: double("note_store",
-            createNote: double("created_note", guid: "1234567890"))))
-      enved.run
+        double("EvernoteOAuth::Client", note_store: @mock_note_store))
+      enved.configure
+      enved.create_note
     end
 
     context "when there is an Evernote Cloud API communication error" do
@@ -120,7 +123,8 @@ describe EvernoteEditor::Editor do
         enved.stub!(:open_editor)
         EvernoteOAuth::Client.stub(:new).and_raise(Evernote::EDAM::Error::EDAMSystemException)
         enved.should_receive(:graceful_failure).once
-        enved.run
+        enved.configure
+        enved.create_note
       end
 
     end
@@ -133,12 +137,10 @@ describe EvernoteEditor::Editor do
     let(:enved) { EvernoteEditor::Editor.new('a note', {}) }
 
     it "returns an array of hashes of notes" do
-
-
-    end
-
-    context "when no results are found" do
-      it "returns false"
+      enved.configure
+      EvernoteOAuth::Client.stub(:new).and_return(
+        double("EvernoteOAuth::Client", note_store: @mock_note_store))
+      enved.search_notes.first.title.should eq 'alpha'
     end
 
     context "when there is an Evernote Cloud API communication error" do
@@ -162,8 +164,36 @@ describe EvernoteEditor::Editor do
   end
 
   describe "#edit_note" do
+    
+    before { write_fakefs_config }
+    let(:enved) { EvernoteEditor::Editor.new('a note', {}) }
 
-    it "presents a list of notes that match the title input"
+    it "presents a list of notes that match the title input" do
+
+    end
+    
+    context "when there was an error searching notes" do
+
+      it "does nothing" do
+        enved.stub(:search_notes).and_return(false)
+        enved.should_not_receive(:choose)
+        enved.configure
+        enved.edit_note
+      end
+
+    end
+
+    context "when no search results are found" do
+
+      it "does not present a list of notes" do
+        enved.stub(:search_notes).and_return([])
+        enved.should_receive(:say).with(/^No\ notes\ were\ found/)
+        enved.should_not_receive(:choose)
+        enved.configure
+        enved.edit_note
+      end
+
+    end
 
     it "edits a note in a text editor"
 

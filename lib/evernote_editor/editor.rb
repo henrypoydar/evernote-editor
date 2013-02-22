@@ -60,9 +60,21 @@ module EvernoteEditor
     end
 
     def edit_note
-      if search_notes 
-
+      found_notes = search_notes
+      return unless found_notes
+      if found_notes.empty?
+        say "No notes were found matching '#{@title}'"
+        return
       end
+      
+      choose do |menu|
+        menu.prompt = "Which note would you like to edit:"
+        found_notes.each do |n|
+          menu.choice("#{Time.at(n.updated/1000).strftime('%Y-%m-%d %H:%M')} #{n.title}") { puts n.inspect }
+        end
+        menu.choice("None") { puts "None!" }
+      end
+
     end
 
     def search_notes(term = '')
