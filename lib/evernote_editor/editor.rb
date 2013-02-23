@@ -13,9 +13,10 @@ module EvernoteEditor
     attr_accessor :configuration
 
     def initialize(*args, opts)
-      @title   = args.flatten[0] || "Untitled note - #{Time.now}"
+      @title   = args.flatten[0] || ""
       @tags    = (args.flatten[1] || '').split(',')
       @options = opts
+      @sandbox = opts[:sandbox]
       @mkdout  = Redcarpet::Markdown.new(Redcarpet::Render::XHTML,
         autolink: true, space_after_headers: true, no_intra_emphasis: true)
     end
@@ -24,7 +25,6 @@ module EvernoteEditor
       configure
       @options[:edit] ? edit_note : create_note
     end
-
 
     def configure
       FileUtils.touch(CONFIGURATION_FILE) unless File.exist?(CONFIGURATION_FILE)
@@ -39,7 +39,7 @@ module EvernoteEditor
         evn_client = EvernoteOAuth::Client.new(token: @configuration[:token], sandbox: @sandbox)
         note_store = evn_client.note_store
         note = Evernote::EDAM::Type::Note.new
-        note.title = @title
+        note.title = @title.empty? ? "Untitled note" : @title
         note.content = note_markup(markdown)
         created_note = note_store.createNote(@configuration[:token], note)
         say "Successfully created new note '#{created_note.title}'"
