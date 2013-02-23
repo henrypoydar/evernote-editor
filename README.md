@@ -16,8 +16,6 @@ Uses your favorite editor and Markdown formatting.
 
 ## TODO
 
-* Editing first by finding
-* Tags on creation?
-* Specs are pretty thin. Stubbing/expecting the thrift stuff is cumbersome.
-* Better exception handling. With specs.
+* Store tags on creation
+* Specs are a bit thin. Stubbing/expecting the thrift stuff is cumbersome.
 * Travis-ify
