@@ -9,8 +9,8 @@ Gem::Specification.new do |gem|
   gem.version       = EvernoteEditor::VERSION
   gem.authors       = ["hpoydar"]
   gem.email         = ["henry@poydar.com"]
-  gem.description   = %q{Command line creation and editing of Evernote notes}
-  gem.summary       = %q{Simple command line creation and editing of Evernote notes in Markdown format with your favorite editor via a gem installed binary}
+  gem.summary   = %q{Command line creation and editing of Evernote notes}
+  gem.description       = %q{Simple command line creation and editing of Evernote notes in Markdown format with your favorite editor via a gem installed binary}
   gem.homepage      = "https://github.com/hpoydar/evernote-editor"
 
   gem.files         = `git ls-files`.split($/)
