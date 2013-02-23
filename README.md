@@ -22,5 +22,3 @@ You can modify both values later by editing `~/.enved`
 ## TODO
 
 * Store tags on creation
-* Specs are a bit thin. Stubbing/expecting the thrift stuff is cumbersome.
-* Travis-ify
