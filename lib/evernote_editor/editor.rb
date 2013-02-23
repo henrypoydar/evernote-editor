@@ -62,7 +62,7 @@ module EvernoteEditor
 
     def edit_note
 
-      found_notes = search_notes
+      found_notes = search_notes(@title)
       return unless found_notes
       if found_notes.empty?
         say "No notes were found matching '#{@title}'"
