@@ -5,6 +5,10 @@
 Simple gem that provides command line creation and editing of Evernote notes.
 Uses your favorite editor and Markdown formatting.
 
+## Requirements
+
+Only tested on OSX and Ruby 1.9.3 with `vim` and `mvim` editors. YMMV.
+
 ## Installation
 
     gem install evernote-editor
