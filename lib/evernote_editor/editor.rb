@@ -180,7 +180,6 @@ module EvernoteEditor
       end
     end
 
-    #"S=s1:U=b73d:E=144369d53e9:C=13cdeec27e9:P=1cd:A=en-devtoken:H=cae2b3fa91691e351744620de8ec0418"
   end
 
 end
