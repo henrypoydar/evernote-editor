@@ -3,6 +3,7 @@ require 'fileutils'
 require 'tempfile'
 require "highline/import"
 require "redcarpet"
+require "reverse_markdown"
 
 module EvernoteEditor
 
@@ -41,16 +42,16 @@ module EvernoteEditor
         note.title = @title
         note.content = note_markup(markdown)
         created_note = note_store.createNote(@configuration[:token], note)
-        say "Successfully created a new note (GUID: #{created_note.guid})"
+        say "Successfully created new note '#{created_note.title}'"
       rescue Evernote::EDAM::Error::EDAMSystemException,
              Evernote::EDAM::Error::EDAMUserException,
              Evernote::EDAM::Error::EDAMNotFoundException => e
-        graceful_failure(markdown, e)
+        say "Sorry, an error occurred saving the note to Evernote (#{e.message})"
+        graceful_failure(markdown)
       end
     end
 
-    def graceful_failure(markdown, e)
-      say "Sorry, an error occurred saving the note to Evernote (#{e.message})"
+    def graceful_failure(markdown)
       say "Here's the markdown you were trying to save:"
       say ""
       say "--BEGIN--"
@@ -60,19 +61,48 @@ module EvernoteEditor
     end
 
     def edit_note
+
       found_notes = search_notes
       return unless found_notes
       if found_notes.empty?
         say "No notes were found matching '#{@title}'"
         return
       end
-      
-      choose do |menu|
+
+      choice = choose do |menu|
         menu.prompt = "Which note would you like to edit:"
         found_notes.each do |n|
-          menu.choice("#{Time.at(n.updated/1000).strftime('%Y-%m-%d %H:%M')} #{n.title}") { puts n.inspect }
+          menu.choice("#{Time.at(n.updated/1000).strftime('%Y-%m-%d %H:%M')} #{n.title}") do
+            n.guid
+          end
         end
-        menu.choice("None") { puts "None!" }
+        menu.choice("None") { nil }
+      end
+      return if choice.nil?
+
+      begin
+        evn_client = EvernoteOAuth::Client.new(token: @configuration[:token], sandbox: @sandbox)
+        note_store = evn_client.note_store
+        note = note_store.getNote(@configuration[:token], choice, true, true, false, false)
+      rescue Evernote::EDAM::Error::EDAMSystemException,
+             Evernote::EDAM::Error::EDAMUserException,
+             Evernote::EDAM::Error::EDAMNotFoundException => e
+        say "Sorry, an error occurred communicating with Evernote (#{e.message})"
+        return
+      end
+
+      markdown = invoke_editor(note_markdown(note.content))
+      note.content = note_markup(markdown)
+      note.updated = Time.now.to_i * 1000
+
+      begin
+        note_store.updateNote(@configuration[:token], note)
+        say "Successfully updated note '#{note.title}'"
+      rescue Evernote::EDAM::Error::EDAMSystemException,
+             Evernote::EDAM::Error::EDAMUserException,
+             Evernote::EDAM::Error::EDAMNotFoundException => e
+        say "Sorry, an error occurred saving the note to Evernote (#{e.message})"
+        graceful_failure(markdown)
       end
 
     end
@@ -94,14 +124,11 @@ module EvernoteEditor
     end
 
     def note_markup(markdown)
-      res = <<-EOS
-        <?xml version="1.0" encoding="UTF-8"?>
-        <!DOCTYPE en-note SYSTEM "http://xml.evernote.com/pub/enml2.dtd">
-        <en-note>
-        #{@mkdout.render(markdown)}
-        </en-note>
-      EOS
-      res
+      "<?xml version='1.0' encoding='UTF-8'?><!DOCTYPE en-note SYSTEM 'http://xml.evernote.com/pub/enml2.dtd'><en-note>#{@mkdout.render(markdown)}</en-note>"
+    end
+
+    def note_markdown(markup)
+      ReverseMarkdown.parse markup
     end
 
     def invoke_editor(initial_content = "")
