@@ -25,6 +25,4 @@ You can modify both values later by editing `~/.enved`
       -e, --edit         Search for and edit an existing note by title
       -h, --help         Display this screen
 
-## TODO
-
-* Store tags on creation
+Title is optional on note creation. Tags are ignored when a note is edited.

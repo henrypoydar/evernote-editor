@@ -40,6 +40,7 @@ module EvernoteEditor
         note_store = evn_client.note_store
         note = Evernote::EDAM::Type::Note.new
         note.title = @title.empty? ? "Untitled note" : @title
+        note.tagNames = @tags unless @tags.empty?
         note.content = note_markup(markdown)
         created_note = note_store.createNote(@configuration[:token], note)
         say "Successfully created new note '#{created_note.title}'"
