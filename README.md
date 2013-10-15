@@ -7,7 +7,7 @@ Uses your favorite editor and Markdown formatting.
 
 ## Requirements
 
-Only tested on OSX and Ruby 1.9.3, 2.0.0-p247 with `vim` and `mvim` editors. YMMV.
+Only tested on OSX and Ruby 2.0 with `vim` and `mvim` editors. YMMV.
 
 ## Installation
 
