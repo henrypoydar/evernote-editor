@@ -9,7 +9,7 @@ RSpec.configure do |config|
 
   def write_fakefs_config
     File.open(File.expand_path("~/.evned"), 'w') do |f|
-      f.write( { token: '123', editor: 'vim' }.to_yaml )
+      f.write( { token: '123', editor: 'vim' }.to_json )
     end
   end
 end

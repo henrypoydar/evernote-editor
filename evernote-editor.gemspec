@@ -18,7 +18,7 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
 
-  gem.add_runtime_dependency "evernote_oauth", "~> 0.1.6"
+  gem.add_runtime_dependency "evernote_oauth", "~> 0.2.1"
   gem.add_runtime_dependency "highline", "~> 1.6.15"
   gem.add_runtime_dependency "redcarpet", "~> 2.2.2"
   gem.add_runtime_dependency "reverse_markdown", "~> 0.4.3"

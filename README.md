@@ -26,3 +26,8 @@ You can modify both values later by editing `~/.enved`
       -h, --help         Display this screen
 
 Title is optional on note creation. Tags are ignored when a note is edited.
+
+## Development
+
+    bundle
+    bx rspec spec

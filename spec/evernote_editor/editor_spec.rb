@@ -44,14 +44,14 @@ describe EvernoteEditor::Editor do
         enved.stub(:ask).with(/token/).and_return('123')
         enved.stub(:ask).with(/editor/).and_return('vim')
         enved.configure
-        YAML::load(File.open(File.expand_path("~/.evned")))[:token].should eq "123"
+        JSON::load(File.open(File.expand_path("~/.evned")))['token'].should eq "123"
       end
 
       it "stores the editor path" do
         enved.stub(:ask).with(/token/).and_return('123')
         enved.stub(:ask).with(/editor/).and_return('vim')
         enved.configure
-        YAML::load(File.open(File.expand_path("~/.evned")))[:editor].should eq "vim"
+        JSON::load(File.open(File.expand_path("~/.evned")))['editor'].should eq "vim"
       end
 
     end
@@ -76,7 +76,7 @@ describe EvernoteEditor::Editor do
 
       before do
         File.open(File.expand_path("~/.evned"), 'w') do |f|
-          f.write( { foo: '123', editor: 'vim' }.to_yaml )
+          f.write( { foo: '123', editor: 'vim' }.to_json )
         end
       end
 
@@ -89,7 +89,7 @@ describe EvernoteEditor::Editor do
       it "rewrites the configuration file" do
         enved.should_receive(:ask).with(/token/).and_return('123')
         enved.configure
-        YAML::load(File.open(File.expand_path("~/.evned")))[:token].should eq "123"
+        JSON::load(File.open(File.expand_path("~/.evned")))['token'].should eq "123"
       end
 
     end
