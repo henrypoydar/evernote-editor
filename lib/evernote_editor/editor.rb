@@ -24,7 +24,10 @@ module EvernoteEditor
 
     def run
       configure
-      @options[:edit] ? edit_note : create_note
+      return edit_note if @options[:edit]
+      return list_notes if @options[:list]
+      return print_note if @options[:print]
+      create_note
     end
 
     def configure
@@ -62,6 +65,45 @@ module EvernoteEditor
       say markdown
       say "--END--"
       say ""
+    end
+
+    def print_note 
+      guid = nil
+      if @title.match /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/
+        note = get_note @title
+      else
+        found_notes = search_notes @title
+
+        return unless found_notes
+        if found_notes.empty?
+          say "No notes were found matching '#{@title}'"
+          return
+        end
+
+        note_metadata = found_notes.first
+        note = get_note note_metadata.guid
+      end
+
+      if note
+        say note.title
+        say ''
+        say note_markdown(note.content)
+      end
+    end
+
+    def list_notes
+      found_notes = search_notes(@title)
+
+      return unless found_notes
+      if found_notes.empty?
+        say "No notes were found matching '#{@title}'"
+        return
+      end
+
+      found_notes.each do |note|
+
+        say "%s\t%s\t%s" % [note.title, note.guid, Time.at(note.updated/1000).strftime('%Y-%m-%d %H:%M')]
+      end
     end
 
     def edit_note
@@ -111,13 +153,26 @@ module EvernoteEditor
 
     end
 
+    def get_note(guid)
+      begin
+        evn_client = EvernoteOAuth::Client.new(token: @configuration['token'], sandbox: @sandbox)
+        note_store = evn_client.note_store
+        note = note_store.getNote(@configuration['token'], guid, true, true, false, false)
+      rescue Evernote::EDAM::Error::EDAMSystemException,
+             Evernote::EDAM::Error::EDAMUserException,
+             Evernote::EDAM::Error::EDAMNotFoundException => e
+        say "Sorry, an error occurred communicating with Evernote (#{e.inspect})"
+      end
+
+    end
+
     def search_notes(term = '')
       begin
         evn_client = EvernoteOAuth::Client.new(token: @configuration['token'], sandbox: @sandbox)
         note_store = evn_client.note_store
         note_filter = Evernote::EDAM::NoteStore::NoteFilter.new
         note_filter.words = term
-        results = note_store.findNotes(@configuration['token'], note_filter, 0, 10).notes
+        results = note_store.findNotes(@configuration['token'], note_filter, 0, @options[:max_results] || 10).notes
       rescue Evernote::EDAM::Error::EDAMSystemException,
              Evernote::EDAM::Error::EDAMUserException,
              Evernote::EDAM::Error::EDAMNotFoundException => e
