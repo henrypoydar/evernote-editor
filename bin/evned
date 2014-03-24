@@ -21,6 +21,19 @@ OptionParser.new do |opts|
     options[:edit] = true
   end
 
+  opts.on( '-l', '--list', 'List note metadata' ) do
+    options[:list] = true
+  end
+
+  opts.on( '-p', '--print', 'Print a single note to the terminal' ) do
+    options[:print] = true
+  end
+
+  opts.on( '-m', '--max-results max', Integer, 'Maximum results to show') do |max|
+    options[:max_results] = max
+  end
+
+
   opts.on( '-h', '--help', 'Display this screen' ) do
     puts opts
     exit
