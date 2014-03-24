@@ -15,6 +15,23 @@ describe EvernoteEditor::Editor do
       findNotes:  double("notes", notes: [
         double("note", title: 'alpha', guid: "123", updated: 1361577921000 ),
         double("note", title: 'bravo', guid: "456", updated: 1361577937000 )]))
+
+    @guid_note_store = double("note_store",
+      createNote: double("note", guid: "12345678-1234-1234-1234-123456781234", title: 'Alpha'),
+      getNote:    double("note", guid: "12345678-1234-1234-1234-123456781234", title: 'Alpha',
+        :content= => nil, :updated= => nil,
+        content: "<?xml version=\"2.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">\n<en-note><div>alpha bravo</div></en-note>"),
+      :updateNote => nil,
+      findNotes:  double("notes", notes: [
+        double("note", title: 'alpha', guid: "12345678-1234-1234-1234-123456781234", updated: 1361577921000 ),
+        double("note", title: 'bravo', guid: "456", updated: 1361577937000 )]))
+
+    @empty_note_store = double("note_store",
+      createNote: [],
+      getNote:    [],
+      :updateNote => nil,
+      findNotes:  double("notes", notes: []))
+
   end
 
   describe "#configure" do
@@ -292,4 +309,113 @@ describe EvernoteEditor::Editor do
     end
 
   end
+
+	describe "#get_note" do
+
+    before { write_fakefs_config }
+		let(:enved) {EvernoteEditor::Editor.new('a note', {})}
+
+
+		it "retrieves the note by guid" do
+			enved.configure
+
+			EvernoteOAuth::Client.stub(:new).and_return(
+				double("EvernoteOAuth::Client", note_store: @mock_note_store))
+
+			note = enved.get_note('123')
+			note.guid.should eq '123'
+		end
+
+
+    context "when there is an Evernote Cloud API communication error" do
+
+      it "displays an error message" do
+        enved.configure
+        EvernoteOAuth::Client.stub(:new).and_raise(Evernote::EDAM::Error::EDAMSystemException)
+        enved.should_receive(:say).with(/sorry/i).once
+        enved.get_note('123')
+      end
+
+      it "returns nil" do
+        enved.configure
+        EvernoteOAuth::Client.stub(:new).and_raise(Evernote::EDAM::Error::EDAMSystemException)
+        enved.stub(:say)
+        enved.get_note('123').should eq nil
+      end
+		end
+	end
+
+	describe "#list_notes" do
+
+    before { write_fakefs_config }
+		let(:enved) {EvernoteEditor::Editor.new('alpha', {})}
+
+		it "lists the notes" do
+			enved.configure
+
+			EvernoteOAuth::Client.stub(:new).and_return(
+				double("EvernoteOAuth::Client", note_store: @mock_note_store))
+
+			enved.should_receive(:say).with(/^alpha\t/)
+			enved.should_receive(:say).with(/^bravo\t/)
+			enved.list_notes
+		end
+
+		context "when the search results are empty" do
+
+			it "should say no notes were found" do 
+				enved.configure
+
+				EvernoteOAuth::Client.stub(:new).and_return(
+					double("EvernoteOAuth::Client", note_store: @empty_note_store))
+
+				enved.should_receive(:say).with(/^No notes were found/)
+				enved.list_notes
+			end
+		end
+	end
+
+	describe "#print_note" do
+
+    before { write_fakefs_config }
+		let(:enved) {EvernoteEditor::Editor.new('alpha', {})}
+
+		it "prints the note in markdown" do
+			enved.configure
+
+			EvernoteOAuth::Client.stub(:new).and_return(
+				double("EvernoteOAuth::Client", note_store: @mock_note_store))
+
+			enved.should_receive(:say).with(/^Alpha/)
+			enved.should_receive(:say).with("")
+			enved.should_receive(:say).with("\nalpha bravo")
+			enved.print_note
+		end
+
+		it "retrieves the note by guid" do
+			enved = EvernoteEditor::Editor.new('12345678-1234-1234-1234-123456781234', {})
+			enved.configure
+
+			EvernoteOAuth::Client.stub(:new).and_return(
+				double("EvernoteOAuth::Client", note_store: @guid_note_store))
+
+			enved.should_receive(:say).with(/^Alpha/)
+			enved.should_receive(:say).with("")
+			enved.should_receive(:say).with("\nalpha bravo")
+			enved.print_note
+		end
+
+		context "when no matches are found" do
+
+			it "should say no notes were found" do 
+				enved.configure
+
+				EvernoteOAuth::Client.stub(:new).and_return(
+					double("EvernoteOAuth::Client", note_store: @empty_note_store))
+
+				enved.should_receive(:say).with(/^No notes were found/)
+				enved.print_note
+			end
+		end
+	end
 end
