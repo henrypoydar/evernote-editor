@@ -310,21 +310,21 @@ describe EvernoteEditor::Editor do
 
   end
 
-	describe "#get_note" do
+  describe "#get_note" do
 
     before { write_fakefs_config }
-		let(:enved) {EvernoteEditor::Editor.new('a note', {})}
+    let(:enved) {EvernoteEditor::Editor.new('a note', {})}
 
 
-		it "retrieves the note by guid" do
-			enved.configure
+    it "retrieves the note by guid" do
+      enved.configure
 
-			EvernoteOAuth::Client.stub(:new).and_return(
-				double("EvernoteOAuth::Client", note_store: @mock_note_store))
+      EvernoteOAuth::Client.stub(:new).and_return(
+        double("EvernoteOAuth::Client", note_store: @mock_note_store))
 
-			note = enved.get_note('123')
-			note.guid.should eq '123'
-		end
+      note = enved.get_note('123')
+      note.guid.should eq '123'
+    end
 
 
     context "when there is an Evernote Cloud API communication error" do
@@ -342,80 +342,80 @@ describe EvernoteEditor::Editor do
         enved.stub(:say)
         enved.get_note('123').should eq nil
       end
-		end
-	end
+    end
+  end
 
-	describe "#list_notes" do
-
-    before { write_fakefs_config }
-		let(:enved) {EvernoteEditor::Editor.new('alpha', {})}
-
-		it "lists the notes" do
-			enved.configure
-
-			EvernoteOAuth::Client.stub(:new).and_return(
-				double("EvernoteOAuth::Client", note_store: @mock_note_store))
-
-			enved.should_receive(:say).with(/^alpha\t/)
-			enved.should_receive(:say).with(/^bravo\t/)
-			enved.list_notes
-		end
-
-		context "when the search results are empty" do
-
-			it "should say no notes were found" do 
-				enved.configure
-
-				EvernoteOAuth::Client.stub(:new).and_return(
-					double("EvernoteOAuth::Client", note_store: @empty_note_store))
-
-				enved.should_receive(:say).with(/^No notes were found/)
-				enved.list_notes
-			end
-		end
-	end
-
-	describe "#print_note" do
+  describe "#list_notes" do
 
     before { write_fakefs_config }
-		let(:enved) {EvernoteEditor::Editor.new('alpha', {})}
+    let(:enved) {EvernoteEditor::Editor.new('alpha', {})}
 
-		it "prints the note in markdown" do
-			enved.configure
+    it "lists the notes" do
+      enved.configure
 
-			EvernoteOAuth::Client.stub(:new).and_return(
-				double("EvernoteOAuth::Client", note_store: @mock_note_store))
+      EvernoteOAuth::Client.stub(:new).and_return(
+        double("EvernoteOAuth::Client", note_store: @mock_note_store))
 
-			enved.should_receive(:say).with(/^Alpha/)
-			enved.should_receive(:say).with("")
-			enved.should_receive(:say).with("\nalpha bravo")
-			enved.print_note
-		end
+      enved.should_receive(:say).with(/^alpha\t/)
+      enved.should_receive(:say).with(/^bravo\t/)
+      enved.list_notes
+    end
 
-		it "retrieves the note by guid" do
-			enved = EvernoteEditor::Editor.new('12345678-1234-1234-1234-123456781234', {})
-			enved.configure
+    context "when the search results are empty" do
 
-			EvernoteOAuth::Client.stub(:new).and_return(
-				double("EvernoteOAuth::Client", note_store: @guid_note_store))
+      it "should say no notes were found" do 
+        enved.configure
 
-			enved.should_receive(:say).with(/^Alpha/)
-			enved.should_receive(:say).with("")
-			enved.should_receive(:say).with("\nalpha bravo")
-			enved.print_note
-		end
+        EvernoteOAuth::Client.stub(:new).and_return(
+          double("EvernoteOAuth::Client", note_store: @empty_note_store))
 
-		context "when no matches are found" do
+        enved.should_receive(:say).with(/^No notes were found/)
+        enved.list_notes
+      end
+    end
+  end
 
-			it "should say no notes were found" do 
-				enved.configure
+  describe "#print_note" do
 
-				EvernoteOAuth::Client.stub(:new).and_return(
-					double("EvernoteOAuth::Client", note_store: @empty_note_store))
+    before { write_fakefs_config }
+    let(:enved) {EvernoteEditor::Editor.new('alpha', {})}
 
-				enved.should_receive(:say).with(/^No notes were found/)
-				enved.print_note
-			end
-		end
-	end
+    it "prints the note in markdown" do
+      enved.configure
+
+      EvernoteOAuth::Client.stub(:new).and_return(
+        double("EvernoteOAuth::Client", note_store: @mock_note_store))
+
+      enved.should_receive(:say).with(/^Alpha/)
+      enved.should_receive(:say).with("")
+      enved.should_receive(:say).with("\nalpha bravo")
+      enved.print_note
+    end
+
+    it "retrieves the note by guid" do
+      enved = EvernoteEditor::Editor.new('12345678-1234-1234-1234-123456781234', {})
+      enved.configure
+
+      EvernoteOAuth::Client.stub(:new).and_return(
+        double("EvernoteOAuth::Client", note_store: @guid_note_store))
+
+      enved.should_receive(:say).with(/^Alpha/)
+      enved.should_receive(:say).with("")
+      enved.should_receive(:say).with("\nalpha bravo")
+      enved.print_note
+    end
+
+    context "when no matches are found" do
+
+      it "should say no notes were found" do 
+        enved.configure
+
+        EvernoteOAuth::Client.stub(:new).and_return(
+          double("EvernoteOAuth::Client", note_store: @empty_note_store))
+
+        enved.should_receive(:say).with(/^No notes were found/)
+        enved.print_note
+      end
+    end
+  end
 end
