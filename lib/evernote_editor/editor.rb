@@ -5,6 +5,7 @@ require "highline/import"
 require "json"
 require "redcarpet"
 require "reverse_markdown"
+require "sanitize"
 
 module EvernoteEditor
 
@@ -132,6 +133,7 @@ module EvernoteEditor
     end
 
     def note_markdown(markup)
+      markup = Sanitize.clean(markup, Sanitize::Config::RELAXED)
       ReverseMarkdown.convert markup
     end
 

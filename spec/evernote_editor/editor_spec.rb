@@ -286,7 +286,13 @@ describe EvernoteEditor::Editor do
     let(:enved) { EvernoteEditor::Editor.new('a note', {}) }
 
     it "converts ENML/XHTML to markdown" do
-      str = "\n# Interesting!\n\n- Alpha\n- Bravo\n"
+      str = "# Interesting!\n\n- Alpha\n- Bravo\n"
+      markup = enved.note_markup(str)
+      enved.note_markdown(markup).should eq str
+    end
+
+    it "converts nested indentation to markdown" do
+      str = "# Interesting!\n\n- Alpha\n  - Zebra\n  - Yankee\n- Bravo\n"
       markup = enved.note_markup(str)
       enved.note_markdown(markup).should eq str
     end
