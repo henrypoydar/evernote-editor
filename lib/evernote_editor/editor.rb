@@ -132,7 +132,7 @@ module EvernoteEditor
     end
 
     def note_markdown(markup)
-      ReverseMarkdown.parse markup
+      ReverseMarkdown.convert markup
     end
 
     def invoke_editor(initial_content = "")

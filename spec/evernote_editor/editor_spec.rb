@@ -114,7 +114,7 @@ describe EvernoteEditor::Editor do
     end
 
     it "saves the document to Evernote" do
-      enved.stub!(:open_editor)
+      enved.stub(:open_editor)
       EvernoteOAuth::Client.should_receive(:new).and_return(
         double("EvernoteOAuth::Client", note_store: @mock_note_store))
       enved.configure
@@ -124,7 +124,7 @@ describe EvernoteEditor::Editor do
     context "when there is an Evernote Cloud API communication error" do
 
       it "prints your note to STDOUT so you don't lose it" do
-        enved.stub!(:open_editor)
+        enved.stub(:open_editor)
         EvernoteOAuth::Client.stub(:new).and_raise(Evernote::EDAM::Error::EDAMSystemException)
         enved.should_receive(:graceful_failure).once
         enved.configure

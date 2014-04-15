@@ -18,13 +18,13 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
 
-  gem.add_runtime_dependency "evernote_oauth", "~> 0.2.1"
-  gem.add_runtime_dependency "highline", "~> 1.6.15"
-  gem.add_runtime_dependency "redcarpet", "~> 2.2.2"
-  gem.add_runtime_dependency "reverse_markdown", "~> 0.4.3"
+  gem.add_runtime_dependency "evernote_oauth", "~> 0.2.3"
+  gem.add_runtime_dependency "highline", "~> 1.6.21"
+  gem.add_runtime_dependency "redcarpet", "~> 3.1.1"
+  gem.add_runtime_dependency "reverse_markdown", "0.5.1"
 
-  gem.add_development_dependency "fakefs", "~> 0.4.2"
-  gem.add_development_dependency "rake", "~> 10.0.3"
-  gem.add_development_dependency "rspec", "~> 2.12.0"
+  # gem.add_development_dependency "fakefs" # See Gemfile, using branch to support Ruby 2.1
+  gem.add_development_dependency "rake", "~> 10.2.2"
+  gem.add_development_dependency "rspec", "~> 2.14.1"
 
 end
