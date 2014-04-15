@@ -134,7 +134,7 @@ module EvernoteEditor
 
     def note_markdown(markup)
       markup = Sanitize.clean(markup, Sanitize::Config::RELAXED)
-      ReverseMarkdown.convert markup
+      ReverseMarkdown.convert markup.strip
     end
 
     def invoke_editor(initial_content = "")
