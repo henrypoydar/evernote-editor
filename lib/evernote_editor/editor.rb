@@ -21,6 +21,7 @@ module EvernoteEditor
       @sandbox = opts[:sandbox]
       @mkdout  = Redcarpet::Markdown.new(Redcarpet::Render::XHTML,
         autolink: true, space_after_headers: true, no_intra_emphasis: true)
+      @notebooks = []
     end
 
     def run
@@ -77,7 +78,7 @@ module EvernoteEditor
       choice = choose do |menu|
         menu.prompt = "Which note would you like to edit:"
         found_notes.each do |n|
-          menu.choice("#{Time.at(n.updated/1000).strftime('%Y-%m-%d %H:%M')} #{n.title}") do
+          menu.choice("#{Time.at(n.updated/1000).strftime('%Y %b %d %H:%M')} [#{lookup_notebook_name(n.notebookGuid)}] #{n.title}") do
             n.guid
           end
         end
@@ -184,6 +185,21 @@ module EvernoteEditor
       File.open(CONFIGURATION_FILE, "w") do |file|
         file.write @configuration.to_json
       end
+    end
+
+    def lookup_notebook_name(guid)
+      if @notebooks.empty?
+        begin
+          evn_client = EvernoteOAuth::Client.new(token: @configuration['token'], sandbox: @sandbox)
+          note_store = evn_client.note_store
+          @notebooks = note_store.listNotebooks
+        rescue Evernote::EDAM::Error::EDAMSystemException,
+               Evernote::EDAM::Error::EDAMUserException,
+               Evernote::EDAM::Error::EDAMNotFoundException => e
+          return "unknown notebook"
+        end
+      end
+      @notebooks.select {|n| n.guid == guid}.first.name
     end
 
   end

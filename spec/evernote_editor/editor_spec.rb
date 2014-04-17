@@ -7,6 +7,8 @@ describe EvernoteEditor::Editor do
     FileUtils.mkpath(File.expand_path("~"))
     FileUtils.mkpath(File.expand_path("/tmp"))
     @mock_note_store = double("note_store",
+      getNotebook: double("notebook", guid: "456", name: "Zebra Notebook"),
+      listNotebooks: [double("notebook", guid: "456", name: "Zebra Notebook")],
       createNote: double("note", guid: "123", title: 'Alpha'),
       getNote:    double("note", guid: "123", title: 'Alpha',
         :content= => nil, :updated= => nil,
@@ -299,4 +301,37 @@ describe EvernoteEditor::Editor do
     end
 
   end
+
+  describe "#lookup_notebook_name" do
+
+    before { write_fakefs_config }
+    let(:enved) { EvernoteEditor::Editor.new('a note', {}) }
+
+    it "looks up a notebook name by guid" do
+      enved.configure
+      EvernoteOAuth::Client.stub(:new).and_return(
+        double("EvernoteOAuth::Client", note_store: @mock_note_store))
+      enved.lookup_notebook_name('456').should eq 'Zebra Notebook'
+    end
+
+    it "returns 'unknown notebook' when there is a communication error" do
+      enved.configure
+      EvernoteOAuth::Client.stub(:new).and_return(
+        double("EvernoteOAuth::Client", note_store: @mock_note_store))
+        @mock_note_store.stub(:listNotebooks).and_raise(Evernote::EDAM::Error::EDAMSystemException)
+      enved.lookup_notebook_name('456').should eq 'unknown notebook'
+    end
+
+    it "first looks in locally stored value for the notebook attributes" do
+      enved.configure
+      enved.instance_variable_set(:@notebooks, [
+        double("notebook", guid: "456", name: "Yankee Notebook"),
+        double("notebook", guid: "789", name: "Xray Notebook")])
+      EvernoteOAuth::Client.should_not_receive(:new)
+      enved.lookup_notebook_name('456').should eq 'Yankee Notebook'
+
+    end
+
+  end
+
 end
