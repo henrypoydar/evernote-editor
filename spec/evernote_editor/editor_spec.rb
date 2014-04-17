@@ -292,6 +292,7 @@ describe EvernoteEditor::Editor do
     end
 
     it "converts nested indentation to markdown" do
+      pending "https://github.com/xijo/reverse_markdown/issues/29"
       str = "# Interesting!\n\n- Alpha\n  - Zebra\n  - Yankee\n- Bravo\n"
       markup = enved.note_markup(str)
       enved.note_markdown(markup).should eq str
