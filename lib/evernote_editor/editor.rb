@@ -19,7 +19,7 @@ module EvernoteEditor
       @tags    = (args.flatten[1] || '').split(',')
       @options = opts
       @sandbox = opts[:sandbox]
-      @mkdout  = Redcarpet::Markdown.new(Redcarpet::Render::XHTML,
+      @mkdout  = Redcarpet::Markdown.new(Redcarpet::Render::HTML,
         autolink: true, space_after_headers: true, no_intra_emphasis: true)
       @notebooks = []
     end
