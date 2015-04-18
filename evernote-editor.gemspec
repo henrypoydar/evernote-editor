@@ -21,7 +21,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "evernote_oauth", "~> 0.2.3"
   gem.add_runtime_dependency "highline", "~> 1.7"
   gem.add_runtime_dependency "redcarpet", "~> 3.2"
-  gem.add_runtime_dependency "reverse_markdown", "0.8"
+  gem.add_runtime_dependency "reverse_markdown", "0.8.1"
   gem.add_runtime_dependency "sanitize", "3.1"
 
   gem.add_development_dependency "fakefs", "~> 0.6.7"
