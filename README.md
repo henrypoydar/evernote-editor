@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/hpoydar/evernote-editor.png?branch=master)](https://travis-ci.org/hpoydar/evernote-editor)
+[![Build Status](https://travis-ci.org/henrypoydar/evernote-editor.png?branch=master)](https://travis-ci.org/henrypoydar/evernote-editor)
 
 # Evernote Editor
 
